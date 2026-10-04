@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Platform,
 } from "react-native";
 import { MenuItem, FilterType } from "../types/menu";
 
@@ -48,10 +49,34 @@ export default function HomeScreen({
   const countMains = menuItems.filter((i) => i.course === "Main Course").length;
   const countDesserts = menuItems.filter((i) => i.course === "Dessert").length;
 
+  const handleDeleteClick = (id: string) => {
+    if (Platform.OS === "web") {
+      // Web-safe confirmation dialog
+      if (window.confirm("Are you sure you want to remove this dish?")) {
+        onDeletePress(id);
+      }
+    } else {
+      // Native mobile alert confirmation
+      Alert.alert(
+        "Confirm Delete",
+        "Remove this dish?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => onDeletePress(id),
+          },
+        ],
+        { cancelable: true },
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🍽️ Christoffel's Kitchen</Text>
+        <Text style={styles.headerTitle}>🍽️️ Christoffel's Kitchen</Text>
         <Text style={styles.headerSubtitle}>
           Total Menu Items: {totalItems}
         </Text>
@@ -132,16 +157,7 @@ export default function HomeScreen({
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.deleteBtn}
-                  onPress={() =>
-                    Alert.alert("Confirm Delete", "Remove this dish?", [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Delete",
-                        style: "destructive",
-                        onPress: () => onDeletePress(item.id),
-                      },
-                    ])
-                  }
+                  onPress={() => handleDeleteClick(item.id)}
                 >
                   <Text style={styles.actionText}>Delete</Text>
                 </TouchableOpacity>
